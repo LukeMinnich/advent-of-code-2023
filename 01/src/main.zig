@@ -39,7 +39,8 @@ fn calibration_value(file: std.fs.File) !u32 {
 
         var a: ?u8 = null;
         var b: ?u8 = null;
-        for (buf[0..n_written], 0..n_written) |char, i| {
+        for (0..n_written) |i| {
+            const char = buf[i];
             var value: ?u8 = null;
             if (std.ascii.isDigit(char)) {
                 value = char - '0';
