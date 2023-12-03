@@ -56,16 +56,14 @@ fn calibration_value(file: std.fs.File) !u32 {
             }
 
             if (value != null) {
-                if (a == null) {
+                if (a == null)
                     a = value;
-                }
                 b = value;
             }
         }
 
-        if (a != null and b != null) {
+        if (a != null and b != null)
             total += a.? * 10 + b.?;
-        }
 
         ostream.reset();
     }
