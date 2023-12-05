@@ -1,8 +1,8 @@
 const std = @import("std");
 
-var prev: [143]u8 = undefined;
-var curr: [143]u8 = undefined;
-var next: [143]u8 = undefined;
+var prev = [_]u8{'.'} ** 143;
+var curr = [_]u8{'.'} ** 143;
+var next = [_]u8{'.'} ** 143;
 
 fn accumulate_gear_ratio(line: []const u8, seek_pos: usize, adjacent_parts: *u32, gear_ratio: *u32) bool {
     if (!std.ascii.isDigit(line[seek_pos]))
@@ -30,11 +30,6 @@ fn accumulate_gear_ratio(line: []const u8, seek_pos: usize, adjacent_parts: *u32
 
 fn solve_puzzle(file: std.fs.File) !u32 {
     var istream = std.io.bufferedReader(file.reader());
-
-    @memset(&prev, '.');
-    @memset(&curr, '.');
-    @memset(&next, '.');
-
     var ostream = std.io.fixedBufferStream(&next);
 
     var total: u32 = 0;
