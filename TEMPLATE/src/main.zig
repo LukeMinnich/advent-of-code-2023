@@ -16,6 +16,7 @@ fn solve_puzzle(file: std.fs.File) !void {
         const output = ostream.getWritten();
         const n_written = output.len;
         _ = n_written;
+        ostream.reset();
     }
 }
 
