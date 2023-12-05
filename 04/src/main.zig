@@ -4,17 +4,12 @@ const split = std.mem.split;
 const splitAny = std.mem.splitAny;
 const trim = std.mem.trim;
 
-const ScratcherSet = std.bit_set.IntegerBitSet(100);
-
-const ScratcherIterator = std.mem.TokenIterator(u8, .scalar);
-
 const card_count = 215;
 
-var cards_seen = std.bit_set.IntegerBitSet(card_count).initEmpty();
-var card_values = [_]usize{0} ** card_count;
+const ScratcherSet = std.bit_set.IntegerBitSet(100);
 
-fn like_white_trash(iter: *ScratcherIterator, line: []const u8, line_no: usize) !usize {
-    var splits = splitAny(u8, line, ":|");
+fn process_card(card_txt: []const u8, card_no: usize, card_values: []u32) !void {
+    var splits = splitAny(u8, card_txt, ":|");
     _ = splits.next().?; // Card number
 
     // zig fmt: off
@@ -37,48 +32,31 @@ fn like_white_trash(iter: *ScratcherIterator, line: []const u8, line_no: usize) 
     }
 
     scratched.setIntersection(winners);
-    const num_winners = scratched.count();
+    const num_winners: u32 = @intCast(scratched.count());
+    const factor: u32 = card_values[card_no];
 
-    var copies: usize = 1;
     var i: usize = 0;
-    while (iter.next()) |inner_line| {
-        if (i >= num_winners)
+    while (i < num_winners) : (i += 1) {
+        const card_idx = card_no + i + 1;
+        if (card_idx >= card_values.len)
             break;
-
-        i += 1;
-        const inner_line_no = line_no + i;
-
-        if (cards_seen.isSet(inner_line_no)) {
-            copies += card_values[inner_line_no];
-        } else {
-            var iter_copy = iter.*;
-            const copied = try like_white_trash(&iter_copy, inner_line, inner_line_no);
-            cards_seen.set(inner_line_no);
-            card_values[inner_line_no] = copied;
-            copies += copied;
-        }
+        card_values[card_idx] += factor;
     }
-    return copies;
 }
 
 fn solve_puzzle(input: []const u8) !usize {
     var iter = std.mem.tokenizeScalar(u8, input, '\n');
-    var copies: usize = 0;
-    var line_no: usize = 0;
-    while (iter.next()) |line| {
-        line_no += 1;
+    var card_values = [_]u32{0} ** card_count;
 
-        if (cards_seen.isSet(line_no)) {
-            copies += card_values[line_no];
-        } else {
-            var iter_copy = iter;
-            const copied = try like_white_trash(&iter_copy, line, line_no);
-            cards_seen.set(line_no);
-            card_values[line_no] = copied;
-            copies += copied;
-        }
+    var total: u32 = 0;
+    var card_no: usize = 0;
+    while (iter.next()) |line| : (card_no += 1) {
+        card_values[card_no] += 1;
+        total += card_values[card_no];
+        try process_card(line, card_no, &card_values);
     }
-    return copies;
+
+    return total;
 }
 
 // zig fmt: off
